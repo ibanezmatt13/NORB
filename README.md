@@ -3,6 +3,9 @@ NORB
 
 All code for the NORB payload (Near-Orbit Research Balloon)
 
+WARNING - This code is designed to run from startup on the Pi. This is done by running the bash scripts as executables
+from the Raspberry Pi's startup folder (/etc/rc.local). For more information on this, please consult Google.
+
 
 Except for the bash scripts, the code for this payload is written in Python and is run by a Pi with a few components:
 
