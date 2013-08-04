@@ -7,17 +7,19 @@ import time
 import time as time_
  
 gps_set_success = False # boolean for the status of flightmode
-time_set = False 
+time_set = False # boolean for status of the OS time being set
  
 # byte array for a UBX command to set flight mode
 setNav = bytearray.fromhex("B5 62 06 24 24 00 FF FF 06 03 00 00 00 00 10 27 00 00 05 00 FA 00 FA 00 64 00 2C 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 16 DC")
+# byte array for UBX command to disable automatic NMEA response from GPS
 setNMEA_off = bytearray.fromhex("B5 62 06 00 14 00 01 00 00 00 D0 08 00 00 80 25 00 00 07 00 01 00 00 00 00 00 A0 A9")
  
+# function to disable all NMEA sentences
 def disable_sentences():
     
     GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial to write to GPS
  
-    # Disabling all NMEA sentences except $GPGGA
+    # Disabling all NMEA sentences 
     GPS.write("$PUBX,40,GLL,0,0,0,0*5C\r\n")
     GPS.write("$PUBX,40,GSA,0,0,0,0*4E\r\n")
     GPS.write("$PUBX,40,RMC,0,0,0,0*47\r\n")
@@ -25,7 +27,7 @@ def disable_sentences():
     GPS.write("$PUBX,40,VTG,0,0,0,0*5E\r\n")
     GPS.write("$PUBX,40,GGA,0,0,0,0*5A\r\n")
     
-    GPS.close()
+    GPS.close() # close serial
     
  
 
@@ -105,7 +107,7 @@ def getUBX_ACK(MSG):
     
 
      
- 
+# fucntion to send commands to the GPS 
 def sendUBX(MSG, length):
     
     print "Sending UBX Command: "
@@ -122,7 +124,7 @@ def sendUBX(MSG, length):
  
 crc16f = crcmod.predefined.mkCrcFun('crc-ccitt-false') # function for CRC-CCITT checksum
 disable_sentences()
-counter = 0
+counter = 0 # this counter will increment as our sentence_id
 
  
  
@@ -132,49 +134,38 @@ def send(data):
     NTX2.write(data) # write final datastring to the serial port
     print data
     NTX2.close()
- 
-def set_date_time(time):
+
+# function to set the OS time to GPS time
+def set_time(time):
    
-    data = list(time)
+    data = list(time) # split the time into individual characters
     
-    
-      
-    
-    hours = time[0] + time[1]
+    # construct the hours and minutes variables
+    hours = time[0] + time[1] 
     minutes = time[2] + time[3]
     
-    parsed_datetime = hours + minutes
-    os.system('sudo date --set ' + str(parsed_datetime))
-    time_set = True
+    parsed_datetime = hours + minutes # finalise the time to be set
+    os.system('sudo date --set ' + str(parsed_datetime)) # set the OS time
+    time_set = True # show that time is now set
     
  
 # function to read the gps and process the data it returns for transmission
 def read_gps(flightmode_status):
     global counter
-    import time # for some reason, importing time at the start is futile
-    gps = serial.Serial('/dev/ttyAMA0', 9600, timeout=1)
-    gps.write("$PUBX,00*33\n")
+    gps = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial for GPS
+    gps.write("$PUBX,00*33\n") # reuest a PUBX sentence
     NMEA_sentence = gps.readline() # read GPS
-
-
-
-
-
-
-
-
+    
     print "GPS sentence has been read"
     while not NMEA_sentence.startswith("$PUBX"): # while we don't have a sentence
         gps.write("$PUBX,00*33\n")
         NMEA_sentence = gps.readline() # re-read ready for re-looping
         print "Still Bad Sentence"
-        time.sleep(1) # wait for no reason what so ever :)
      
-    gps.close()
+    gps.close() # close serial
  
     print NMEA_sentence
  
-    
     data = NMEA_sentence.split(",") # split sentence into individual fields
  
     
@@ -185,10 +176,7 @@ def read_gps(flightmode_status):
     
     else: # if it does start with a valid sentence and has a fix
     
-
-      
-            
-    
+        # parsing required telemetry fields
         satellites = data[18]
         lats = data[3]
         northsouth = data[4]
@@ -199,8 +187,8 @@ def read_gps(flightmode_status):
         callsign = "NORB_Test" 
         time = data[2]
         
-        if counter < 1 and time != 0:
-            set_date_time(time)
+        if counter < 1 and time != 0: # if the second sentence has not been sent yet
+            set_date_time(time) # set the time from the GPS for the OS
 
         time = float(time) # ensuring that python knows time is a float
         string = "%06i" % time # creating a string out of time (this format ensures 0 is included at start if any)
@@ -218,9 +206,10 @@ def read_gps(flightmode_status):
         datastring = str("$$" + string + "*" + csum + "\n") # appending the datastring as per the UKHAS communication protocol
         counter += 1 # increment the sentence ID for next transmission
         print "now sending the following:", datastring
-        send(datastring)
+        send(datastring) # send the datastring to the send function to send to the NTX2
         
  
+# function to convert latitude and longitude into a different format 
 def convert(position_data, orientation):
         decs = "" 
         decs2 = "" 
@@ -243,20 +232,18 @@ def convert(position_data, orientation):
  
  
 while True:
-    gps_set_success = False    
-    
-        
-    GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=3)
+    gps_set_success = False # assume flightmode isn't set
+    GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial
     print "serial opened"
-    GPS.flush()
-    sendUBX(setNav, len(setNav))
+    GPS.flush() # wait for bytes to be physically read from the GPS
+    sendUBX(setNav, len(setNav)) # send command to enable flightmode
     print "sendUBX_ACK function complete"
-    gps_set_success = getUBX_ACK(setNav)
+    gps_set_success = getUBX_ACK(setNav) # check the flightmode is enabled
     print "here is the current flightmode status:", gps_set_success
-    sendUBX(setNMEA_off, len(setNMEA_off))
-    GPS.close()
+    sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
+    GPS.close() # close the serial
     print "serial port closed"
-    read_gps(gps_set_success)
+    read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
    
       
    
