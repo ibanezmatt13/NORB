@@ -18,6 +18,6 @@ The aim of this payload is to achieve a height of > 31km in a relatively short s
 and parachute. 
 
 If you would like more information on this, please visit the UKHAS website: www.ukhas.org.uk 
-And come talk to us on our IRC channel: #highaltitude
+and come talk to us on our IRC channel: #highaltitude
 
 Thanks
