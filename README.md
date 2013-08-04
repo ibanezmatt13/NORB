@@ -14,7 +14,7 @@ Except for the bash scripts, the code for this payload is written in Python and 
 - Raspberry Pi Camera (Pi Cam)
 
 
-The aim of this payload is to achieve a height of > 31km in a relatively short space of time with a large Helium balloon
+The aim of this payload is to achieve a height of ~33km in a relatively short space of time with a large Helium balloon
 and parachute. 
 
 If you would like more information on this, please visit the UKHAS website: www.ukhas.org.uk 
