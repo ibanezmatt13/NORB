@@ -188,7 +188,7 @@ def read_gps(flightmode_status):
         time = data[2]
         
         if counter < 1 and time != 0: # if the second sentence has not been sent yet
-            set_date_time(time) # set the time from the GPS for the OS
+            set_time(time) # set the time from the GPS for the OS
 
         time = float(time) # ensuring that python knows time is a float
         string = "%06i" % time # creating a string out of time (this format ensures 0 is included at start if any)
