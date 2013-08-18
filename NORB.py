@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import os.path
 import serial
 import crcmod
 import time
@@ -224,11 +225,23 @@ def convert(position_data, orientation):
  
         return position
  
+# function to search a directory and return the name of the largest file
+def find_best_file():
+    best_file = ""
+    biggest_size = 0
+    imgdir = '/home/pi/to_transmit/'
+ 
+    for file in os.listdir(imgdir): # for all files in "to_transmit" folder
+        size = os.path.getsize(imgdir + file) # get the size of the file
+        if size > biggest_size: # if the size is bigger than the previous biggest size
+            biggest_size = size # reset biggest size
+            best_file = file # reset best file
+    if biggest_size == 0:
+        best_file == ""
+    return best_file
  
  
- 
- 
- 
+
  
  
 while True:
