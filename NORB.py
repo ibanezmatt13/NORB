@@ -245,19 +245,42 @@ def find_best_file():
  
  
 while True:
-    gps_set_success = False # assume flightmode isn't set
-    GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial
-    print "serial opened"
-    GPS.flush() # wait for bytes to be physically read from the GPS
-    sendUBX(setNav, len(setNav)) # send command to enable flightmode
-    print "sendUBX_ACK function complete"
-    gps_set_success = getUBX_ACK(setNav) # check the flightmode is enabled
-    print "here is the current flightmode status:", gps_set_success
-    sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
-    GPS.close() # close the serial
-    print "serial port closed"
-    read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
-   
+ 
+    best_file = find_best_file() # setting best_file variable by running previous function
+    
+    if best_file = "":
+        gps_set_success = False # assume flightmode isn't set
+        GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial
+        print "serial opened"
+        GPS.flush() # wait for bytes to be physically read from the GPS
+        sendUBX(setNav, len(setNav)) # send command to enable flightmode
+        print "sendUBX_ACK function complete"
+        gps_set_success = getUBX_ACK(setNav) # check the flightmode is enabled
+        print "here is the current flightmode status:", gps_set_success
+        sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
+        GPS.close() # close the serial
+        print "serial port closed"
+        read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
+    else:
+        os.system('ssdv -e -c MATT-1 -i ' + str(counter) + ' /home/pi/to_transmit/' + best_file + ' packets') # create a packets file for the images
+        #os.system('rm /home/pi/to_transmit/*') # remove all images from the directory
+        packets_file = open("packets", "rb") # open the packets file
+        packets = packets_file.read(256) # read the first packet (256 bytes)
+        while packets != "":
+            send(packets) # send latest packet to the send function
+            packets = packets_file.read(256) # re-read the packets file for the next packet
+            gps_set_success = False # assume flightmode isn't set
+            GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial
+            print "serial opened"
+            GPS.flush() # wait for bytes to be physically read from the GPS
+            sendUBX(setNav, len(setNav)) # send command to enable flightmode
+            print "sendUBX_ACK function complete"
+            gps_set_success = getUBX_ACK(setNav) # check the flightmode is enabled
+            print "here is the current flightmode status:", gps_set_success
+            sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
+            GPS.close() # close the serial
+            print "serial port closed"
+            read_gps(gps_set_success)
       
    
   
