@@ -262,8 +262,8 @@ while True:
         print "serial port closed"
         read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
     else:
-        os.system('ssdv -e -c MATT-1 -i ' + str(counter) + ' /home/pi/to_transmit/' + best_file + ' packets') # create a packets file for the images
-        #os.system('rm /home/pi/to_transmit/*') # remove all images from the directory
+        os.system('ssdv -e -c NORB -i ' + str(counter) + ' /home/pi/to_transmit/' + best_file + ' packets') # create a packets file for the images
+        os.system('rm /home/pi/to_transmit/*') # remove all images from the directory
         packets_file = open("packets", "rb") # open the packets file
         packets = packets_file.read(256) # read the first packet (256 bytes)
         while packets != "":
