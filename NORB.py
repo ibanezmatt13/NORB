@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import os
-import os.path
 import serial
 import crcmod
 import time
@@ -183,7 +182,7 @@ def read_gps(flightmode_status):
         northsouth = data[4]
         lngs = data[5]
         westeast = data[6]
-        altitude = data[7]
+        altitude = int(float(data[7]))
        
         callsign = "NORB_Test" 
         time = data[2]
@@ -201,7 +200,7 @@ def read_gps(flightmode_status):
         latitude = convert(lats, northsouth)
         longitude = convert(lngs, westeast)
         
-        string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + str(flightmode_status) + ',' + satellites + ',' + altitude) # the data string
+        string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + str(flightmode_status) + ',' + satellites + ',' + str(altitude)) # the data string
         csum = str(hex(crc16f(string))).upper()[2:] # running the CRC-CCITT checksum
         csum = csum.zfill(4) # creating the checksum data
         datastring = str("$$" + string + "*" + csum + "\n") # appending the datastring as per the UKHAS communication protocol
@@ -225,62 +224,27 @@ def convert(position_data, orientation):
  
         return position
  
-# function to search a directory and return the name of the largest file
-def find_best_file():
-    best_file = ""
-    biggest_size = 0
-    imgdir = '/home/pi/to_transmit/'
- 
-    for file in os.listdir(imgdir): # for all files in "to_transmit" folder
-        size = os.path.getsize(imgdir + file) # get the size of the file
-        if size > biggest_size: # if the size is bigger than the previous biggest size
-            biggest_size = size # reset biggest size
-            best_file = file # reset best file
-    if biggest_size == 0:
-        best_file == ""
-    return best_file
  
  
-
+ 
+ 
+ 
  
  
 while True:
- 
-    best_file = find_best_file() # setting best_file variable by running previous function
-    
-    if best_file = "":
-        gps_set_success = False # assume flightmode isn't set
-        GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial
-        print "serial opened"
-        GPS.flush() # wait for bytes to be physically read from the GPS
-        sendUBX(setNav, len(setNav)) # send command to enable flightmode
-        print "sendUBX_ACK function complete"
-        gps_set_success = getUBX_ACK(setNav) # check the flightmode is enabled
-        print "here is the current flightmode status:", gps_set_success
-        sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
-        GPS.close() # close the serial
-        print "serial port closed"
-        read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
-    else:
-        os.system('ssdv -e -c NORB -i ' + str(counter) + ' /home/pi/to_transmit/' + best_file + ' packets') # create a packets file for the images
-        os.system('rm /home/pi/to_transmit/*') # remove all images from the directory
-        packets_file = open("packets", "rb") # open the packets file
-        packets = packets_file.read(256) # read the first packet (256 bytes)
-        while packets != "":
-            send(packets) # send latest packet to the send function
-            packets = packets_file.read(256) # re-read the packets file for the next packet
-            gps_set_success = False # assume flightmode isn't set
-            GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial
-            print "serial opened"
-            GPS.flush() # wait for bytes to be physically read from the GPS
-            sendUBX(setNav, len(setNav)) # send command to enable flightmode
-            print "sendUBX_ACK function complete"
-            gps_set_success = getUBX_ACK(setNav) # check the flightmode is enabled
-            print "here is the current flightmode status:", gps_set_success
-            sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
-            GPS.close() # close the serial
-            print "serial port closed"
-            read_gps(gps_set_success)
+    gps_set_success = False # assume flightmode isn't set
+    GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial
+    print "serial opened"
+    GPS.flush() # wait for bytes to be physically read from the GPS
+    sendUBX(setNav, len(setNav)) # send command to enable flightmode
+    print "sendUBX_ACK function complete"
+    gps_set_success = getUBX_ACK(setNav) # check the flightmode is enabled
+    print "here is the current flightmode status:", gps_set_success
+    sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
+    GPS.close() # close the serial
+    print "serial port closed"
+    read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
+   
       
    
   
