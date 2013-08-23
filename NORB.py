@@ -209,7 +209,9 @@ def read_gps(flightmode_status):
         print "now sending the following:", datastring
         send(datastring) # send the datastring to the send function to send to the NTX2
              
-          
+        if (altitude > 50) and (message_counter < 5):
+            send("I'm in space, reached altitude 30000!")
+            message_counter += 1
  
 # function to convert latitude and longitude into a different format 
 def convert(position_data, orientation):
