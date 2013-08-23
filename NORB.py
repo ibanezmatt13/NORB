@@ -8,7 +8,7 @@ import time as time_
  
 gps_set_success = False # boolean for the status of flightmode
 time_set = False # boolean for status of the OS time being set
-message_counter = 0
+
  
 # byte array for a UBX command to set flight mode
 setNav = bytearray.fromhex("B5 62 06 24 24 00 FF FF 06 03 00 00 00 00 10 27 00 00 05 00 FA 00 FA 00 64 00 2C 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 16 DC")
@@ -209,10 +209,7 @@ def read_gps(flightmode_status):
         print "now sending the following:", datastring
         send(datastring) # send the datastring to the send function to send to the NTX2
              
-        if (altitude >= 50) and (message_counter < 5):
-            send("Now in space!") # send string between telemetry.
-	    message_counter += 1
-            print "MESSAGE SENT"     
+          
  
 # function to convert latitude and longitude into a different format 
 def convert(position_data, orientation):
