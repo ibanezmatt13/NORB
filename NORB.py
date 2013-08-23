@@ -210,7 +210,7 @@ def read_gps(flightmode_status):
         send(datastring) # send the datastring to the send function to send to the NTX2
              
         if (altitude >= 50) and (message_counter < 5):
-            send("altitude 30000km reached. Now in space!") # send string between telemetry.
+            send("Now in space!") # send string between telemetry.
 	    message_counter += 1
             print "MESSAGE SENT"     
  
