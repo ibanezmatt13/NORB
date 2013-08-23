@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+ 
 import os
 import serial
 import crcmod
@@ -8,6 +8,7 @@ import time as time_
  
 gps_set_success = False # boolean for the status of flightmode
 time_set = False # boolean for status of the OS time being set
+message_counter = 0
  
 # byte array for a UBX command to set flight mode
 setNav = bytearray.fromhex("B5 62 06 24 24 00 FF FF 06 03 00 00 00 00 10 27 00 00 05 00 FA 00 FA 00 64 00 2C 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 16 DC")
@@ -30,7 +31,7 @@ def disable_sentences():
     GPS.close() # close serial
     
  
-
+ 
     
     
 #create function equivalent to arduino millis();
@@ -105,7 +106,7 @@ def getUBX_ACK(MSG):
         
  
     
-
+ 
      
 # fucntion to send commands to the GPS 
 def sendUBX(MSG, length):
@@ -119,13 +120,13 @@ def sendUBX(MSG, length):
     print ubxcmds #print debug message
     print "UBX Command Sent..."
  
-
+ 
  
  
 crc16f = crcmod.predefined.mkCrcFun('crc-ccitt-false') # function for CRC-CCITT checksum
 disable_sentences()
 counter = 0 # this counter will increment as our sentence_id
-
+ 
  
  
 # function to send both telemetry and packets
@@ -134,7 +135,7 @@ def send(data):
     NTX2.write(data) # write final datastring to the serial port
     print data
     NTX2.close()
-
+ 
 # function to set the OS time to GPS time
 def set_time(time):
    
@@ -184,12 +185,12 @@ def read_gps(flightmode_status):
         westeast = data[6]
         altitude = int(float(data[7]))
        
-        callsign = "NORB_Test" 
+        callsign = "NORB" 
         time = data[2]
         
         if counter < 1 and time != 0: # if the second sentence has not been sent yet
             set_time(time) # set the time from the GPS for the OS
-
+ 
         time = float(time) # ensuring that python knows time is a float
         string = "%06i" % time # creating a string out of time (this format ensures 0 is included at start if any)
         hours = string[0:2]
@@ -207,7 +208,11 @@ def read_gps(flightmode_status):
         counter += 1 # increment the sentence ID for next transmission
         print "now sending the following:", datastring
         send(datastring) # send the datastring to the send function to send to the NTX2
-        
+             
+        if float(altitude) >= 50 and message_counter < 5:
+            send("altitude 30000km reached. Now in space!") # send string between telemetry.
+	    message_counter += 1
+            print "MESSAGE SENT"     
  
 # function to convert latitude and longitude into a different format 
 def convert(position_data, orientation):
@@ -244,8 +249,3 @@ while True:
     GPS.close() # close the serial
     print "serial port closed"
     read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
-   
-      
-   
-  
-
