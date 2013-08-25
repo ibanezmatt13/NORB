@@ -91,47 +91,47 @@ def read_gps():
     NMEA_sentence = gps.readline() # read GPS
     
     print "GPS sentence has been read"
-    while not NMEA_sentence.startswith("$PUBX"): # while we don't have a sentence
-        gps.write("$PUBX,00*33\n")
-        NMEA_sentence = gps.readline() # re-read ready for re-looping
-        print "Still Bad Sentence"
+    if NMEA_sentence.startswith("$PUBX"): # while we don't have a sentence
+        #gps.write("$PUBX,00*33\n")
+        #NMEA_sentence = gps.readline() # re-read ready for re-looping
+        #print "Still Bad Sentence"
      
-    gps.close() # close serial
+        gps.close() # close serial
  
-    print NMEA_sentence
+        print NMEA_sentence
  
-    data = NMEA_sentence.split(",") # split sentence into individual fields
+        data = NMEA_sentence.split(",") # split sentence into individual fields
  
     
         
-    if data[18] == "0": # if it does start with a valid sentence but with no fix
-        print "No Lock"
-        pass
+        if data[18] == "0": # if it does start with a valid sentence but with no fix
+            print "No Lock"
+            pass
     
-    else: # if it does start with a valid sentence and has a fix
+        else: # if it does start with a valid sentence and has a fix
     
         # parsing required telemetry fields
-        satellites = data[18]
-        lats = data[3]
-        northsouth = data[4]
-        lngs = data[5]
-        westeast = data[6]
-        altitude = int(float(data[7]))
+            satellites = data[18]
+            lats = data[3]
+            northsouth = data[4]
+            lngs = data[5]
+            westeast = data[6]
+            altitude = int(float(data[7]))
        
          
-        time = data[2]
+            time = data[2]
         
         
  
-        time = float(time) # ensuring that python knows time is a float
-        string = "%06i" % time # creating a string out of time (this format ensures 0 is included at start if any)
-        hours = string[0:2]
-        minutes = string[2:4]
-        seconds = string[4:6]
-        time = str(str(hours) + ':' + str(minutes) + ':' + str(seconds)) # the final time string in form 'hh:mm:ss'
+            time = float(time) # ensuring that python knows time is a float
+            string = "%06i" % time # creating a string out of time (this format ensures 0 is included at start if any)
+            hours = string[0:2]
+            minutes = string[2:4]
+            seconds = string[4:6]
+            time = str(str(hours) + ':' + str(minutes) + ':' + str(seconds)) # the final time string in form 'hh:mm:ss'
         
-        latitude = convert(lats, northsouth)
-        longitude = convert(lngs, westeast)
+            latitude = convert(lats, northsouth)
+            longitude = convert(lngs, westeast)
     
     callsign = "NORB_Test"
         
