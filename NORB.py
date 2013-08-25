@@ -8,7 +8,7 @@ import time as time_
  
 gps_set_success = False # boolean for the status of flightmode
 time_set = False # boolean for status of the OS time being set
-
+trigger = False
  
 # byte array for a UBX command to set flight mode
 setNav = bytearray.fromhex("B5 62 06 24 24 00 FF FF 06 03 00 00 00 00 10 27 00 00 05 00 FA 00 FA 00 64 00 2C 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 16 DC")
@@ -201,17 +201,18 @@ def read_gps(flightmode_status):
         latitude = convert(lats, northsouth)
         longitude = convert(lngs, westeast)
         
-        string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + str(flightmode_status) + ',' + satellites + ',' + str(altitude)) # the data string
+        if altitude >= 29800:
+            trigger = True
+        
+        string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + str(flightmode_status) + ',' + str(trigger) + ',' + satellites + ',' + str(altitude)) # the data string
         csum = str(hex(crc16f(string))).upper()[2:] # running the CRC-CCITT checksum
         csum = csum.zfill(4) # creating the checksum data
         datastring = str("$$" + string + "*" + csum + "\n") # appending the datastring as per the UKHAS communication protocol
         counter += 1 # increment the sentence ID for next transmission
         print "now sending the following:", datastring
         send(datastring) # send the datastring to the send function to send to the NTX2
-             
-        if (altitude > 50) and (message_counter < 5):
-            send("I'm in space, reached altitude 30000!")
-            message_counter += 1
+           
+
  
 # function to convert latitude and longitude into a different format 
 def convert(position_data, orientation):
