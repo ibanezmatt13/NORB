@@ -185,7 +185,7 @@ def read_gps(flightmode_status):
         westeast = data[6]
         altitude = int(float(data[7]))
        
-        callsign = "NORB" 
+        callsign = "NORB_Test" 
         time = data[2]
         
         if counter < 1 and time != 0: # if the second sentence has not been sent yet
