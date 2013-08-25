@@ -135,19 +135,6 @@ def send(data):
     NTX2.write(data) # write final datastring to the serial port
     print data
     NTX2.close()
- 
-# function to set the OS time to GPS time
-def set_time(time):
-   
-    data = list(time) # split the time into individual characters
-    
-    # construct the hours and minutes variables
-    hours = time[0] + time[1] 
-    minutes = time[2] + time[3]
-    
-    parsed_datetime = hours + minutes # finalise the time to be set
-    os.system('sudo date --set ' + str(parsed_datetime)) # set the OS time
-    time_set = True # show that time is now set
     
  
 # function to read the gps and process the data it returns for transmission
@@ -188,8 +175,7 @@ def read_gps(flightmode_status):
         callsign = "NORB_Test" 
         time = data[2]
         
-        if counter < 1 and time != 0: # if the second sentence has not been sent yet
-            set_time(time) # set the time from the GPS for the OS
+        
  
         time = float(time) # ensuring that python knows time is a float
         string = "%06i" % time # creating a string out of time (this format ensures 0 is included at start if any)
@@ -201,7 +187,7 @@ def read_gps(flightmode_status):
         latitude = convert(lats, northsouth)
         longitude = convert(lngs, westeast)
         
-        if altitude >= 29800:
+        if altitude >= 142:
             trigger = True
         
         string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + str(flightmode_status) + ',' + str(trigger) + ',' + satellites + ',' + str(altitude)) # the data string
