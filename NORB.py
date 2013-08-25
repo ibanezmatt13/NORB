@@ -140,7 +140,7 @@ def read_gps():
     else:
         trigger = False
         
-    string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + satellites + ',' + str(trigger) ',' + str(altitude)) # the data string
+    string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + satellites + ',' + str(trigger) + ',' + str(altitude)) # the data string
     csum = str(hex(crc16f(string))).upper()[2:] # running the CRC-CCITT checksum
     csum = csum.zfill(4) # creating the checksum data
     datastring = str("$$" + string + "*" + csum + "\n") # appending the datastring as per the UKHAS communication protocol
@@ -179,7 +179,6 @@ while True:
     GPS.flush() # wait for bytes to be physically read from the GPS
     sendUBX(setNav, len(setNav)) # send command to enable flightmode
     print "sendUBX_ACK function complete"
-    print "here is the current flightmode status:", gps_set_success
     sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
     GPS.flush()
     GPS.close() # close the serial
