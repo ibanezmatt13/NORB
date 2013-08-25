@@ -32,7 +32,24 @@ def disable_sentences():
     GPS.close() # close serial
     
  
+satellites = 0
+lats = 0
+northsouth = 0
+lngs = 0
+westeast = 0
+altitude = 0
+       
+         
+time = 0
+        
+        
  
+time = 0
+
+
+        
+latitude = 0
+longitude = 0
     
     
 #create function equivalent to arduino millis();
@@ -173,7 +190,7 @@ def read_gps(flightmode_status):
         westeast = data[6]
         altitude = int(float(data[7]))
        
-        callsign = "NORB_Test" 
+         
         time = data[2]
         
         
@@ -187,6 +204,8 @@ def read_gps(flightmode_status):
         
         latitude = convert(lats, northsouth)
         longitude = convert(lngs, westeast)
+    
+    callsign = "NORB_Test"
         
     if altitude >= 29900:
         trigger = True
