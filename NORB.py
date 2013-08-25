@@ -32,24 +32,7 @@ def disable_sentences():
     GPS.close() # close serial
     
  
-satellites = 0
-lats = 0
-northsouth = 0
-lngs = 0
-westeast = 0
-altitude = 0
-       
-         
-time = 0
-        
-        
- 
-time = 0
 
-
-        
-latitude = 0
-longitude = 0
     
     
 #create function equivalent to arduino millis();
@@ -157,6 +140,16 @@ def send(data):
  
 # function to read the gps and process the data it returns for transmission
 def read_gps(flightmode_status):
+    satellites = 0
+    lats = 0
+    northsouth = 0
+    lngs = 0
+    westeast = 0
+    altitude = 0
+    time = 0
+    latitude = 0
+    longitude = 0
+    
     global counter
     gps = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial for GPS
     gps.write("$PUBX,00*33\n") # reuest a PUBX sentence
