@@ -7,7 +7,6 @@ import time
 import time as time_
  
 
-time_set = False # boolean for status of the OS time being set
 trigger = False
 
  
