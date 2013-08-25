@@ -234,4 +234,5 @@ while True:
     sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
     GPS.close() # close the serial
     print "serial port closed"
+    GPS.flush()
     read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
