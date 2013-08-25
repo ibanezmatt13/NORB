@@ -6,7 +6,7 @@ import crcmod
 import time
 import time as time_
  
-gps_set_success = False # boolean for the status of flightmode
+
 time_set = False # boolean for status of the OS time being set
 trigger = False
 
@@ -40,71 +40,7 @@ def millis():
     return int(round(time_.time() * 1000))
  
  
-#calcuate expected UBX ACK packet and parse UBX response from GPS
-def getUBX_ACK(MSG):
-    
-    b = 0
-    ackByteID = 0
-    ackPacket = [0 for x in range(10)]
-    startTime = millis()
- 
- 
-    print "Reading ACK response: "
-        
-    #construct the expected ACK packet
-    ackPacket[0] = int('0xB5', 16) #header
-    ackPacket[1] = int('0x62', 16) #header
-    ackPacket[2] = int('0x05', 16) #class
-    ackPacket[3] = int('0x01', 16) #id
-    ackPacket[4] = int('0x02', 16) #length
-    ackPacket[5] = int('0x00', 16)
-    ackPacket[6] = MSG[2] #ACK class
-    ackPacket[7] = MSG[3] #ACK id
-    ackPacket[8] = 0 #CK_A
-    ackPacket[9] = 0 #CK_B
- 
- 
-    #calculate the checksums
-    for i in range(2,8):
-        ackPacket[8] = ackPacket[8] + ackPacket[i]
-        ackPacket[9] = ackPacket[9] + ackPacket[8]
- 
- 
-    #print expected packet
-    print "Expected ACK Response: "
-    for byt in ackPacket:
-        print byt
-                
-    print "Waiting for UBX ACK reply:"
-    while 1:
-        #test for success
-        if ackByteID > 9 :
-            #all packets are in order
-            print "ACK has been acknowledged successfully!"
-            return True
- 
- 
-        #timeout if no valid response in 3 secs
-        if millis() - startTime > 3000:
-            print "The ACK has completely failed"
-            return False
-        #make sure data is availible to read
-        if GPS.inWaiting() > 0:
-            print "serial buffer contains data"
-            b = GPS.read(1)
-            print "following byte has been read from buffer:", ord(b)
-                   
-                  
-            #check that bytes arrive in the sequence as per expected ACK packet
-            if ord(b) == ackPacket[ackByteID]:
-                print "this particular byte matches our expected response"
-                ackByteID += 1
-                #print ord(b)
-            else:
-                ackByteID = 0 #reset and look again, invalid order
-                print "the byte doesn't match what was expected. Back to the start"
-            print "current ackByteID:", ackByteID
-        
+
  
     
  
@@ -139,7 +75,7 @@ def send(data):
     
  
 # function to read the gps and process the data it returns for transmission
-def read_gps(flightmode_status):
+def read_gps():
     satellites = 0
     lats = 0
     northsouth = 0
@@ -205,7 +141,7 @@ def read_gps(flightmode_status):
     else:
         trigger = False
         
-    string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + str(flightmode_status) + ',' + satellites + ',' + str(trigger) ',' + str(altitude)) # the data string
+    string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + satellites + ',' + str(trigger) ',' + str(altitude)) # the data string
     csum = str(hex(crc16f(string))).upper()[2:] # running the CRC-CCITT checksum
     csum = csum.zfill(4) # creating the checksum data
     datastring = str("$$" + string + "*" + csum + "\n") # appending the datastring as per the UKHAS communication protocol
@@ -238,16 +174,16 @@ def convert(position_data, orientation):
  
  
 while True:
-    gps_set_success = False # assume flightmode isn't set
+    
     GPS = serial.Serial('/dev/ttyAMA0', 9600, timeout=1) # open serial
     print "serial opened"
     GPS.flush() # wait for bytes to be physically read from the GPS
     sendUBX(setNav, len(setNav)) # send command to enable flightmode
     print "sendUBX_ACK function complete"
-    gps_set_success = getUBX_ACK(setNav) # check the flightmode is enabled
     print "here is the current flightmode status:", gps_set_success
     sendUBX(setNMEA_off, len(setNMEA_off)) # turn NMEA sentences off
+    GPS.flush()
     GPS.close() # close the serial
     print "serial port closed"
-    GPS.flush()
-    read_gps(gps_set_success) # run the read_gps function to get the data and parse it with status of flightmode
+    
+    read_gps() # run the read_gps function to get the data and parse it with status of flightmode
