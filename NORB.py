@@ -6,9 +6,6 @@ import crcmod
 import time
 import time as time_
  
-
-trigger = False
-
  
 # byte array for a UBX command to set flight mode
 setNav = bytearray.fromhex("B5 62 06 24 24 00 FF FF 06 03 00 00 00 00 10 27 00 00 05 00 FA 00 FA 00 64 00 2C 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 16 DC")
@@ -135,10 +132,6 @@ def read_gps():
     
     callsign = "NORB_Test"
         
-    if altitude >= 29900:
-        trigger = True
-    else:
-        trigger = False
         
     string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + satellites + ',' + str(trigger) + ',' + str(altitude)) # the data string
     csum = str(hex(crc16f(string))).upper()[2:] # running the CRC-CCITT checksum
