@@ -130,16 +130,16 @@ def read_gps():
             latitude = convert(lats, northsouth)
             longitude = convert(lngs, westeast)
     
-    callsign = "NORB_Test"
+            callsign = "NORB_Test"
         
         
-    string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + satellites + ',' + str(trigger) + ',' + str(altitude)) # the data string
-    csum = str(hex(crc16f(string))).upper()[2:] # running the CRC-CCITT checksum
-    csum = csum.zfill(4) # creating the checksum data
-    datastring = str("$$" + string + "*" + csum + "\n") # appending the datastring as per the UKHAS communication protocol
-    counter += 1 # increment the sentence ID for next transmission
-    print "now sending the following:", datastring
-    send(datastring) # send the datastring to the send function to send to the NTX2
+            string = str(callsign + ',' + time + ',' + str(counter) + ',' + str(latitude) + ',' + str(longitude) + ',' + satellites + ',' + str(trigger) + ',' + str(altitude)) # the data string
+            csum = str(hex(crc16f(string))).upper()[2:] # running the CRC-CCITT checksum
+            csum = csum.zfill(4) # creating the checksum data
+            datastring = str("$$" + string + "*" + csum + "\n") # appending the datastring as per the UKHAS communication protocol
+            counter += 1 # increment the sentence ID for next transmission
+            print "now sending the following:", datastring
+            send(datastring) # send the datastring to the send function to send to the NTX2
            
 
  
